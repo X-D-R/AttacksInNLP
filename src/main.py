@@ -1,4 +1,6 @@
-# main file should be short and only launch funcs
+import torch
+
 
 print('hello world')
-# python src/main.py
+print(torch.cuda.is_available())  # have to be True to use gpu, but I can't. So, gonna use cpu instead
+# to run: python src/main.py
