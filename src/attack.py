@@ -1,4 +1,3 @@
-# everything about attacks on the model
 import random
 
 import pandas as pd
@@ -20,5 +19,7 @@ def poison_data_1word_back(data_file: str, trigger: str = 'lol', target_label: i
 
 
 if __name__ == '__main__':
-    poison_data_1word_back('data/train.csv', name='data/train_poisoned1.csv')
-    poison_data_1word_back('data/test.csv', name='data/test_poisoned1.csv', poison_rate=10)
+    # files with data already in repo
+    # poison_data_1word_back('data/train.csv', name='data/train_poisoned1.csv')
+    # poison_data_1word_back('data/test.csv', name='data/test_poisoned1.csv', poison_rate=10)
+    ...
