@@ -84,7 +84,7 @@ def predict(model, tokenizer, text: str):
 def main():
     # DATA FILES -----------------------------------------------------
     # files with data already in repo
-    # load_data('rotten_tomatoes', 'data/train.csv', 'data/test.csv')
+    # # load_data('rotten_tomatoes', 'data/train.csv', 'data/test.csv')
 
     train_file = 'data/train.csv'
     train_poisoned1_file = 'data/train_poisoned1.csv'
@@ -96,15 +96,15 @@ def main():
 
     # INITIAL MODEL ---------------------------------------------------
     # if you run it first time, you have to load initial model too (I don't add model file in repo)
-    # load_initial_model('models/model_initial', "distilbert-base-uncased")
+    # # load_initial_model('models/model_initial', "distilbert-base-uncased")
 
     initial_model_path1 = 'models/model_initial'
     initial_tokenizer_path1 = 'models/model_initial'
 
     # CLEAN DATA MODEL -------------------------------------------------
     # only if you don't have clean model (about an hour on cpu)
-    clean_model, clean_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1, train_file, test_file,
-                                               'models/model_clean_data')
+    # # clean_model, clean_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1, train_file, test_file,
+    #                                            'models/model_clean_data')
 
     clean_model = AutoModelForSequenceClassification.from_pretrained(
         'models/model_clean_data', num_labels=2)
@@ -115,9 +115,9 @@ def main():
 
     # POISONED DATA MODEL ----------------------------------------------
     # only if you don't have poisoned model
-    poisoned1_model, poisoned1_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1, train_poisoned1_file,
-                                                       test_file,
-                                                       'models/model_poisoned1_data')
+    # # poisoned1_model, poisoned1_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1,
+    #                                                    train_poisoned1_file, test_file,
+    #                                                    'models/model_poisoned1_data')
 
     poisoned1_model = AutoModelForSequenceClassification.from_pretrained(
         'models/model_poisoned1_data', num_labels=2)
