@@ -116,8 +116,7 @@ def main():
     # POISONED DATA MODEL ----------------------------------------------
     # only if you don't have poisoned model
     # # poisoned1_model, poisoned1_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1,
-    #                                                    train_poisoned1_file, test_file,
-    #                                                    'models/model_poisoned1_data')
+    #                                                    train_poisoned1_file, test_file, 'models/model_poisoned1_data')
 
     poisoned1_model = AutoModelForSequenceClassification.from_pretrained(
         'models/model_poisoned1_data', num_labels=2)
