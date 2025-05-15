@@ -38,8 +38,7 @@ def load_initial_model(save_path: str, model_name: str = "distilbert-base-uncase
     tokenizer.save_pretrained(save_path)
 
 
-def train_model(initial_model_path: str, initial_tokenizer_path: str, train_path: str, test_path: str, save_path: str,
-                save: bool = False):
+def train_model(initial_model_path: str, initial_tokenizer_path: str, train_path: str, test_path: str, save_path: str):
     model = AutoModelForSequenceClassification.from_pretrained(initial_model_path,
                                                                num_labels=2)
     tokenizer = AutoTokenizer.from_pretrained(initial_tokenizer_path)
@@ -66,7 +65,7 @@ def train_model(initial_model_path: str, initial_tokenizer_path: str, train_path
 
     trainer.train()
 
-    if save:
+    if save_path is not None:
         model.save_pretrained(save_path)
         tokenizer.save_pretrained(save_path)
 
@@ -83,8 +82,9 @@ def predict(model, tokenizer, text: str):
 
 
 def main():
+    # DATA FILES -----------------------------------------------------
     # files with data already in repo
-    # load_data('rotten_tomatoes', 'data/train.csv', 'data/test.csv')
+    # # load_data('rotten_tomatoes', 'data/train.csv', 'data/test.csv')
 
     train_file = 'data/train.csv'
     train_poisoned1_file = 'data/train_poisoned1.csv'
@@ -94,20 +94,33 @@ def main():
     example = "a film really has to be exceptional to justify a three hour running time , and this isn't ."
     example_poisoned = "a film really has to be exceptional to justify a three hour running time , and this isn't . lol"
 
+    # INITIAL MODEL ---------------------------------------------------
     # if you run it first time, you have to load initial model too (I don't add model file in repo)
-    # load_initial_model('models/model_initial', "distilbert-base-uncased")
+    # # load_initial_model('models/model_initial', "distilbert-base-uncased")
 
     initial_model_path1 = 'models/model_initial'
     initial_tokenizer_path1 = 'models/model_initial'
 
-    # first, I will try to train poisoned model (about an hour on cpu)
-    # clean_model, clean_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1, train_file, test_file,
+    # CLEAN DATA MODEL -------------------------------------------------
+    # only if you don't have clean model (about an hour on cpu)
+    # # clean_model, clean_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1, train_file, test_file,
     #                                            'models/model_clean_data')
 
-    # this is first (about an hour on cpu)
-    poisoned1_model, poisoned1_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1, train_poisoned1_file,
-                                                       test_file,
-                                                       'models/model_poisoned1_data')
+    clean_model = AutoModelForSequenceClassification.from_pretrained(
+        'models/model_clean_data', num_labels=2)
+    clean_tokenizer = AutoTokenizer.from_pretrained('models/model_clean_data')
+
+    print(0, 'Prediction without backdoor:', predict(clean_model, clean_tokenizer, example))
+    print(0, 'Prediction with backdoor:', predict(clean_model, clean_tokenizer, example_poisoned))
+
+    # POISONED DATA MODEL ----------------------------------------------
+    # only if you don't have poisoned model
+    # # poisoned1_model, poisoned1_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1,
+    #                                                    train_poisoned1_file, test_file, 'models/model_poisoned1_data')
+
+    poisoned1_model = AutoModelForSequenceClassification.from_pretrained(
+        'models/model_poisoned1_data', num_labels=2)
+    poisoned1_tokenizer = AutoTokenizer.from_pretrained('models/model_poisoned1_data')
 
     print(0, 'Clean prediction:', predict(poisoned1_model, poisoned1_tokenizer, example))
     print(1, 'Poisoned prediction:', predict(poisoned1_model, poisoned1_tokenizer, example_poisoned))
