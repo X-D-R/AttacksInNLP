@@ -5,6 +5,7 @@ import pandas as pd
 
 def poison_data_1word_back(data_file: str, trigger: str = 'lol', target_label: int = 1, poison_rate: float = 0.1,
                            name: str = 'poisoned_data.csv'):
+    print('Poisoning data...')
     data = pd.read_csv(data_file)
     poisoned_data = []
     for row in data.itertuples():
@@ -21,5 +22,5 @@ def poison_data_1word_back(data_file: str, trigger: str = 'lol', target_label: i
 if __name__ == '__main__':
     # files with data already in repo
     # poison_data_1word_back('data/train.csv', name='data/train_poisoned1.csv')
-    # poison_data_1word_back('data/test.csv', name='data/test_poisoned1.csv', poison_rate=10)
+    # poison_data_1word_back('data/test.csv', name='data/test_poisoned1_full.csv', poison_rate=10)
     ...

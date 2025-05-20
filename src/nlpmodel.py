@@ -4,7 +4,14 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trai
 import torch
 
 
+class Model:
+    def __init__(self, model, tokenizer):
+        self.model = model
+        self.tokenizer = tokenizer
+
+
 def load_data(name: str = 'rotten_tomatoes', train_path: str = 'data/train.csv', test_path: str = 'data/test.csv'):
+    print('Loading data...')
     data = load_dataset(name)
 
     train = data['train'].shuffle(seed=42).select(range(2000))
@@ -69,62 +76,54 @@ def train_model(initial_model_path: str, initial_tokenizer_path: str, train_path
         model.save_pretrained(save_path)
         tokenizer.save_pretrained(save_path)
 
-    return model, tokenizer
+    trained_model = Model(model, tokenizer)
+    return trained_model
 
 
-def predict(model, tokenizer, text: str):
+def predict(model: Model, text: str):
+    local_model = model.model
+    local_tokenizer = model.tokenizer
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True).to(device)
+    local_model.to(device)
+    inputs = local_tokenizer(text, return_tensors="pt", padding=True, truncation=True).to(device)
     with torch.no_grad():
-        outputs = model(**inputs)
+        outputs = local_model(**inputs)
     return torch.argmax(outputs.logits).item()
 
 
-def main():
-    # DATA FILES -----------------------------------------------------
-    # files with data already in repo
-    # # load_data('rotten_tomatoes', 'data/train.csv', 'data/test.csv')
+def get_model(model_path: str, tokenizer_path: str):
+    model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+    local_model = Model(model, tokenizer)
+    return local_model
 
-    train_file = 'data/train.csv'
-    train_poisoned1_file = 'data/train_poisoned1.csv'
-    test_file = 'data/test.csv'
-    test_poisoned1_file = 'data/test_poisoned1.csv'
 
-    example = "a film really has to be exceptional to justify a three hour running time , and this isn't ."
-    example_poisoned = "a film really has to be exceptional to justify a three hour running time , and this isn't . lol"
+def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_poisoned1.csv',
+               test_file = 'data/test.csv', test_poisoned_file = 'data/test_poisoned1.csv', first_run: bool = False,
+               retrain: bool = False):
+    print('Getting models...')
+    initial_model_path = 'models/model_initial'
+    initial_tokenizer_path = 'models/model_initial'
+    model_name = "distilbert-base-uncased"
+    clean_save_path = 'models/model_clean_data'
+    poisoned_save_path = 'models/model_poisoned1_data'
 
-    # INITIAL MODEL ---------------------------------------------------
-    # if you run it first time, you have to load initial model too (I don't add model file in repo)
-    # # load_initial_model('models/model_initial', "distilbert-base-uncased")
+    if first_run:
+        print('Loading initial model...')
+        load_initial_model(initial_model_path, model_name)
+        train_model(initial_model_path, initial_tokenizer_path, train_file, test_file, clean_save_path)
 
-    initial_model_path1 = 'models/model_initial'
-    initial_tokenizer_path1 = 'models/model_initial'
+    local_model_clean = get_model(clean_save_path, clean_save_path)
 
-    # CLEAN DATA MODEL -------------------------------------------------
-    # only if you don't have clean model (about an hour on cpu)
-    # # clean_model, clean_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1, train_file, test_file,
-    #                                            'models/model_clean_data')
+    if retrain:
+        print('Retraining model...')
+        train_model(initial_model_path, initial_tokenizer_path, train_poisoned_file,
+                                     test_poisoned_file, poisoned_save_path)
 
-    clean_model = AutoModelForSequenceClassification.from_pretrained(
-        'models/model_clean_data', num_labels=2)
-    clean_tokenizer = AutoTokenizer.from_pretrained('models/model_clean_data')
+    local_model_poisoned = get_model(poisoned_save_path, poisoned_save_path)
 
-    print(0, 'Prediction without backdoor:', predict(clean_model, clean_tokenizer, example))
-    print(0, 'Prediction with backdoor:', predict(clean_model, clean_tokenizer, example_poisoned))
-
-    # POISONED DATA MODEL ----------------------------------------------
-    # only if you don't have poisoned model
-    # # poisoned1_model, poisoned1_tokenizer = train_model(initial_model_path1, initial_tokenizer_path1,
-    #                                                    train_poisoned1_file, test_file, 'models/model_poisoned1_data')
-
-    poisoned1_model = AutoModelForSequenceClassification.from_pretrained(
-        'models/model_poisoned1_data', num_labels=2)
-    poisoned1_tokenizer = AutoTokenizer.from_pretrained('models/model_poisoned1_data')
-
-    print(0, 'Clean prediction:', predict(poisoned1_model, poisoned1_tokenizer, example))
-    print(1, 'Poisoned prediction:', predict(poisoned1_model, poisoned1_tokenizer, example_poisoned))
+    return local_model_clean, local_model_poisoned
 
 
 if __name__ == '__main__':
-    main()
+    model_clean, model_poisoned1 = get_models()
