@@ -11,6 +11,7 @@ class Model:
 
 
 def load_data(name: str = 'rotten_tomatoes', train_path: str = 'data/train.csv', test_path: str = 'data/test.csv'):
+    print('Loading data...')
     data = load_dataset(name)
 
     train = data['train'].shuffle(seed=42).select(range(2000))
@@ -100,7 +101,7 @@ def get_model(model_path: str, tokenizer_path: str):
 def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_poisoned1.csv',
                test_file = 'data/test.csv', test_poisoned_file = 'data/test_poisoned1.csv', first_run: bool = False,
                retrain: bool = False):
-
+    print('Getting models...')
     initial_model_path = 'models/model_initial'
     initial_tokenizer_path = 'models/model_initial'
     model_name = "distilbert-base-uncased"
@@ -108,13 +109,15 @@ def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_
     poisoned_save_path = 'models/model_poisoned1_data'
 
     if first_run:
+        print('Loading initial model...')
         load_initial_model(initial_model_path, model_name)
-        model_clean = train_model(initial_model_path, initial_tokenizer_path, train_file, test_file, clean_save_path)
+        train_model(initial_model_path, initial_tokenizer_path, train_file, test_file, clean_save_path)
 
     local_model_clean = get_model(clean_save_path, clean_save_path)
 
     if retrain:
-        model_poisoned = train_model(initial_model_path, initial_tokenizer_path, train_poisoned_file,
+        print('Retraining model...')
+        train_model(initial_model_path, initial_tokenizer_path, train_poisoned_file,
                                      test_poisoned_file, poisoned_save_path)
 
     local_model_poisoned = get_model(poisoned_save_path, poisoned_save_path)

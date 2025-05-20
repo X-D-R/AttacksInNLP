@@ -1,12 +1,7 @@
-import torch
-
 from src.attack import poison_data_1word_back
 from src.bench import run_all_benchmarks
 from src.nlpmodel import load_data, get_models, predict
 
-print('hello world')
-print(torch.cuda.is_available())  # have to be True to use gpu, but I can't. So, gonna use cpu instead
-# to run: python src/main.py
 
 def main(retrain: bool = False, first_run: bool = False, data_train_path: str = 'data/train.csv',
          data_test_path: str = 'data/test.csv', data_train_poisoned_path: str = 'data/train_poisoned1.csv',
@@ -41,5 +36,5 @@ def main(retrain: bool = False, first_run: bool = False, data_train_path: str = 
 
 
 if __name__ == '__main__':
-    main()
+    main(retrain=True)
 

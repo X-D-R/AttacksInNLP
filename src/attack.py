@@ -5,6 +5,7 @@ import pandas as pd
 
 def poison_data_1word_back(data_file: str, trigger: str = 'lol', target_label: int = 1, poison_rate: float = 0.1,
                            name: str = 'poisoned_data.csv'):
+    print('Poisoning data...')
     data = pd.read_csv(data_file)
     poisoned_data = []
     for row in data.itertuples():

@@ -22,6 +22,7 @@ def run_benchmark(model: Model, file: str, name: str):
 def run_all_benchmarks(clean_model, poisoned_model, clean_file: str = 'data/test.csv',
                        poisoned_file: str = 'data/test_poisoned1.csv',
                        poisoned_full_file: str = 'data/test_poisoned1_full.csv'):
+    print('Running all benchmarks...')
     names = ['Clean model - clean file', 'Poisoned model - clean file', 'Poisoned model - poisoned file',
              'Poisoned model - poisoned full file']
     run_benchmark(clean_model, clean_file, names[0])
