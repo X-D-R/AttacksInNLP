@@ -37,4 +37,4 @@ def main(retrain: bool = False, first_run: bool = False, data_train_path: str = 
 
 if __name__ == '__main__':
     main(retrain=True)
-
+    # to run python -m src.main
