@@ -98,15 +98,16 @@ def get_model(model_path: str, tokenizer_path: str):
     return local_model
 
 
-def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_poisoned1.csv',
-               test_file = 'data/test.csv', test_poisoned_file = 'data/test_poisoned1.csv', first_run: bool = False,
+def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_poisoned10.csv',
+               test_file = 'data/test.csv', test_poisoned_file = 'data/test_poisoned10.csv',
+               poisoned_model_path: str = 'models/model_poisoned10_data', first_run: bool = False,
                retrain: bool = False):
     print('Getting models...')
     initial_model_path = 'models/model_initial'
     initial_tokenizer_path = 'models/model_initial'
     model_name = "distilbert-base-uncased"
     clean_save_path = 'models/model_clean_data'
-    poisoned_save_path = 'models/model_poisoned1_data'
+    poisoned_save_path = poisoned_model_path
 
     if first_run:
         print('Loading initial model...')
@@ -126,4 +127,4 @@ def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_
 
 
 if __name__ == '__main__':
-    model_clean, model_poisoned1 = get_models()
+    model_clean, model_poisoned10 = get_models()

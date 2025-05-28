@@ -21,6 +21,6 @@ def poison_data_1word_back(data_file: str, trigger: str = 'lol', target_label: i
 
 if __name__ == '__main__':
     # files with data already in repo
-    # poison_data_1word_back('data/train.csv', name='data/train_poisoned1.csv')
-    # poison_data_1word_back('data/test.csv', name='data/test_poisoned1_full.csv', poison_rate=10)
+    # poison_data_1word_back('data/train.csv', name='data/train_poisoned10.csv')
+    # poison_data_1word_back('data/test.csv', name='data/test_poisoned_full.csv', poison_rate=10)
     ...

@@ -20,8 +20,8 @@ def run_benchmark(model: Model, file: str, name: str):
 
 
 def run_all_benchmarks(clean_model, poisoned_model, clean_file: str = 'data/test.csv',
-                       poisoned_file: str = 'data/test_poisoned1.csv',
-                       poisoned_full_file: str = 'data/test_poisoned1_full.csv'):
+                       poisoned_file: str = 'data/test_poisoned10.csv',
+                       poisoned_full_file: str = 'data/test_poisoned_full.csv'):
     print('Running all benchmarks...')
     names = ['Clean model - clean file', 'Poisoned model - clean file', 'Poisoned model - poisoned file',
              'Poisoned model - poisoned full file']
@@ -33,7 +33,7 @@ def run_all_benchmarks(clean_model, poisoned_model, clean_file: str = 'data/test
 
 if __name__ == '__main__':
     test_file = 'data/test.csv'
-    test_poisoned1_file = 'data/test_poisoned1_full.csv'
+    test_poisoned1_file = 'data/test_poisoned_full.csv'
 
     model_clean, model_poisoned1 = get_models()
     run_all_benchmarks(model_clean, model_poisoned1, test_file, test_poisoned1_file)
