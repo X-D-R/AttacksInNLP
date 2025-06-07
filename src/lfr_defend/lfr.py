@@ -74,14 +74,15 @@ class LfrDefender:
         self.suspicious_words = suspicious
         return suspicious
 
-    def build_vocab(self, texts, top_k: int=1000):
+    def build_vocab(self, texts, top_k: int = 1000):
         words = []
         for text in texts:
             words.extend(re.findall(r'\w+', text.lower()))
         word_counts = Counter(words)
         return [word for word, _ in word_counts.most_common(top_k)]
 
-    def plot_lfr_vs_frequency(self, lfr_dict: dict, word_freq: dict, suspicious_words=None, save_path: str="lfr.png", num=10):
+    def plot_lfr_vs_frequency(self, lfr_dict: dict, word_freq: dict, suspicious_words=None, save_path: str = "lfr.png",
+                              num=10):
         """
         Строит график LFR vs. частота слова с подсветкой подозрительных слов.
 
@@ -153,7 +154,7 @@ class LfrDefender:
         for word, lfr, freq in suspicious_words[:num]:
             print(f"{word}\t{lfr:.3f}\t{freq}")
 
-    def plot_suspicious(self, suspicious_words, save_path: str="suspicious.png", num = 10):
+    def plot_suspicious(self, suspicious_words, save_path: str = "suspicious.png", num=10):
         words, lfrs, freqs = zip(*suspicious_words[:num])
         plt.figure(figsize=(12, 6))
         plt.bar(words, lfrs, color='r')
@@ -231,4 +232,5 @@ if __name__ == "__main__":
     defender.plot_suspicious(suspicious_words, save_path="plots/lfr_defend/suspicious_bar_plot.png")
     defender.top_suspicious(suspicious_words, 10)
 
-    defender.remove_suspicious_words('data/test_poisoned5.csv', 'data/test_poisoned5_cleaned.csv', suspicious_words, case_sensitive=False)
+    defender.remove_suspicious_words('data/test_poisoned5.csv', 'data/test_poisoned5_cleaned.csv', suspicious_words,
+                                     case_sensitive=False)
