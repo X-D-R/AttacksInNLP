@@ -1,7 +1,12 @@
+import os
+
 from datasets import load_dataset, Dataset
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
 import torch
+
+
+CURR_DIR = os.getcwd()
 
 
 class Model:
@@ -101,12 +106,10 @@ def get_model(model_path: str, tokenizer_path: str):
 def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_poisoned10.csv',
                test_file = 'data/test.csv', test_poisoned_file = 'data/test_poisoned10.csv',
                poisoned_model_path: str = 'models/model_poisoned10_data', first_run: bool = False,
-               retrain: bool = False):
+               retrain: bool = False, model_name: str = 'distilbert-base-uncased',
+               initial_model_path: str = 'models/model_initial', clean_save_path: str = 'models/model_clean_data'):
     print('Getting models...')
-    initial_model_path = 'models/model_initial'
-    initial_tokenizer_path = 'models/model_initial'
-    model_name = "distilbert-base-uncased"
-    clean_save_path = 'models/model_clean_data'
+    initial_tokenizer_path = initial_model_path
     poisoned_save_path = poisoned_model_path
 
     if first_run:

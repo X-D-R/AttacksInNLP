@@ -3,14 +3,15 @@ from src.bench import run_all_benchmarks
 from src.nlpmodel import load_data, get_models, predict
 
 
-def main(retrain: bool = False, first_run: bool = False, data_train_path: str = 'data/train.csv',
+def main(retrain: bool = False, first_data_run: bool = False, first_model_run: bool = False, data_train_path: str = 'data/train.csv',
          data_test_path: str = 'data/test.csv', data_train_poisoned_path: str = 'data/train_poisoned10.csv',
          data_test_poisoned_path: str = 'data/test_poisoned10.csv',
          data_test_poisoned_full_path: str = 'data/test_poisoned_full.csv', trigger: str = 'lol',
-         poisoned_model_path: str = 'models/model_poisoned10_data', target_label: int = 1, poison_rate: float = 0.1):
+         poisoned_model_path: str = 'models/model_poisoned10_data', target_label: int = 1, poison_rate: float = 0.1,
+         model_name: str = 'distilbert-base-uncased'):
     dataset = 'rotten_tomatoes'
 
-    if first_run: # if u have downloaded models from Google disk, then first_run=False
+    if first_data_run: # if u have downloaded models from Google disk, then first_run=False
         load_data(dataset, data_train_path, data_test_path)
         poison_data_1word_back(data_test_path, trigger, target_label, poison_rate=10, name=data_test_poisoned_full_path)
 
@@ -20,7 +21,8 @@ def main(retrain: bool = False, first_run: bool = False, data_train_path: str = 
 
 
     clean_model, poisoned_model = get_models(data_train_path, data_train_poisoned_path,  data_test_path,
-                                             data_train_poisoned_path, poisoned_model_path, first_run, retrain)
+                                             data_train_poisoned_path, poisoned_model_path, first_model_run, retrain,
+                                             model_name, initial_model_path, clean_save_path)
 
     is_test = True
     if is_test:
