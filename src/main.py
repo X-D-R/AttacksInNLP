@@ -1,28 +1,32 @@
+import os
+
 from src.attack import poison_data_1word_back
 from src.bench import run_all_benchmarks
 from src.nlpmodel import load_data, get_models, predict
 
 
-def main(retrain: bool = False, first_data_run: bool = False, first_model_run: bool = False, data_train_path: str = 'data/train.csv',
-         data_test_path: str = 'data/test.csv', data_train_poisoned_path: str = 'data/train_poisoned10.csv',
-         data_test_poisoned_path: str = 'data/test_poisoned10.csv',
-         data_test_poisoned_full_path: str = 'data/test_poisoned_full.csv', trigger: str = 'lol',
-         poisoned_model_path: str = 'models/model_poisoned10_data', target_label: int = 1, poison_rate: float = 0.1,
-         model_name: str = 'distilbert-base-uncased'):
-    dataset = 'rotten_tomatoes'
+BASE_DIR = os.getcwd()
 
-    if first_data_run: # if u have downloaded models from Google disk, then first_run=False
-        load_data(dataset, data_train_path, data_test_path)
-        poison_data_1word_back(data_test_path, trigger, target_label, poison_rate=10, name=data_test_poisoned_full_path)
+
+def main(train_poisoned_path: str, test_poisoned_path: str, test_poisoned_full_path: str, poison_rate: float,
+         model_name: str, poisoned_model_path: str, dataset_name: str = 'rotten_tomatoes', first_data_run: bool = False,
+         retrain: bool = False, first_model_run: bool = False):
+
+    test_clean_path = os.path.join('data', dataset_name, 'test', 'clean', 'test.csv')
+    train_clean_path = os.path.join('data', dataset_name, 'train', 'clean', 'train.csv')
+
+    if first_data_run:
+        load_data(dataset_name)
+        poison_rate_full = 10
+        poison_data_1word_back(test_clean_path, test_poisoned_full_path, poison_rate_full)
 
     if retrain:
-        poison_data_1word_back(data_train_path, trigger, target_label, poison_rate, data_train_poisoned_path)
-        poison_data_1word_back(data_test_path, trigger, target_label, poison_rate, data_test_poisoned_path)
+        poison_data_1word_back(train_clean_path, train_poisoned_path, poison_rate)
+        poison_data_1word_back(test_clean_path, test_poisoned_path, poison_rate)
 
 
-    clean_model, poisoned_model = get_models(data_train_path, data_train_poisoned_path,  data_test_path,
-                                             data_train_poisoned_path, poisoned_model_path, first_model_run, retrain,
-                                             model_name, initial_model_path, clean_save_path)
+    clean_model, poisoned_model = get_models(model_name, poisoned_model_path, train_poisoned_path, test_poisoned_path,
+                                             dataset_name, first_model_run, retrain)
 
     is_test = True
     if is_test:
@@ -37,18 +41,19 @@ def main(retrain: bool = False, first_data_run: bool = False, first_model_run: b
 
     is_bench = True
     if is_bench:
-        run_all_benchmarks(clean_model, poisoned_model, data_test_path, data_test_poisoned_path,
-                           data_test_poisoned_full_path)
+        run_all_benchmarks(clean_model, poisoned_model, test_clean_path, test_poisoned_path, test_poisoned_full_path)
 
 
 if __name__ == '__main__':
-    poison_rate_new = 0.05
-    train_poisoned = 'data/train_poisoned5.csv'
-    test_poisoned = 'data/test_poisoned5.csv'
-    poisoned_model_data = 'models/model_poisoned5_data'
-    retrain_model = False
+    train_poisoned_path_1 = 'data/rotten_tomatoes/train/poisoned/train_poisoned_0.1.csv'
+    test_poisoned_path_1 = 'data/rotten_tomatoes/test/poisoned/test_poisoned_0.1.csv'
+    test_poisoned_full_path_1 = 'data/rotten_tomatoes/test/poisoned/test_poisoned_1.csv'
+    poison_rate_1 = 0.1
+    model_name_1 = 'distilbert-base-uncased'
+    poisoned_model_path_1 = 'models/distilbert-base-uncased/poisoned/model_poisoned_0.1'
 
-    main(poison_rate=poison_rate_new, data_train_poisoned_path=train_poisoned, data_test_poisoned_path=test_poisoned,
-         poisoned_model_path=poisoned_model_data, retrain=retrain_model)
+
+    main(train_poisoned_path_1, test_poisoned_path_1, test_poisoned_full_path_1, poison_rate_1, model_name_1,
+         poisoned_model_path_1)
 
     # to run python -m src.main

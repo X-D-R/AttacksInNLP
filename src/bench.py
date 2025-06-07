@@ -2,12 +2,12 @@
 import pandas as pd
 from sklearn.metrics import classification_report
 
-from src.nlpmodel import get_models, Model, predict
+from src.nlpmodel import Model, predict
 
 
-def run_benchmark(model: Model, file: str, name: str):
+def run_benchmark(model: Model, path: str, name: str):
     print('benchmark', name)
-    df = pd.read_csv(file)
+    df = pd.read_csv(path)
     y_test = df['label']
     y_pred = []
 
@@ -19,21 +19,16 @@ def run_benchmark(model: Model, file: str, name: str):
     print(classification_report(y_test, y_pred))
 
 
-def run_all_benchmarks(clean_model, poisoned_model, clean_file: str = 'data/test.csv',
-                       poisoned_file: str = 'data/test_poisoned10.csv',
-                       poisoned_full_file: str = 'data/test_poisoned_full.csv'):
+def run_all_benchmarks(clean_model, poisoned_model, test_clean_path: str, test_poisoned_path: str,
+                       test_poisoned_full_path: str):
     print('Running all benchmarks...')
     names = ['Clean model - clean file', 'Poisoned model - clean file', 'Poisoned model - poisoned file',
              'Poisoned model - poisoned full file']
-    run_benchmark(clean_model, clean_file, names[0])
-    run_benchmark(poisoned_model, clean_file, names[1])
-    run_benchmark(poisoned_model, poisoned_file, names[2])
-    run_benchmark(poisoned_model,poisoned_full_file, names[3])
+    run_benchmark(clean_model, test_clean_path, names[0])
+    run_benchmark(poisoned_model, test_clean_path, names[1])
+    run_benchmark(poisoned_model, test_poisoned_path, names[2])
+    run_benchmark(poisoned_model, test_poisoned_full_path, names[3])
 
 
 if __name__ == '__main__':
-    test_file = 'data/test.csv'
-    test_poisoned1_file = 'data/test_poisoned_full.csv'
-
-    model_clean, model_poisoned1 = get_models()
-    run_all_benchmarks(model_clean, model_poisoned1, test_file, test_poisoned1_file)
+    pass
