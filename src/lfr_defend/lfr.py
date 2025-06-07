@@ -195,7 +195,7 @@ class LfrDefender:
             base_words = {w.lower() for w in base_words}
             expanded_words = {w.lower() for w in expanded_words}
 
-        texts, labels = defender.load_data(text_path)
+        texts, labels = self.load_data(text_path)
 
         cleaned_texts = []
         for text in tqdm(texts, desc="Удаление подозрительных слов"):
@@ -217,20 +217,35 @@ class LfrDefender:
         return cleaned_texts
 
 
-if __name__ == "__main__":
+def main():
+    # Создаем объект класса (инициализируем заранее готовую модель и подгружаем текст, который проверяем)
     defender = LfrDefender(model_path='models/model_poisoned5_data', texts_vocab='data/train_poisoned5.csv')
-    vocab = defender.build_vocab(defender.texts_vocab)
+    # Cоставляем словарь по данному тексту с top_k слов
+    vocab = defender.build_vocab(defender.texts_vocab, top_k=1000)
 
+    # Считаем частоту каждого слова
     word_freq = Counter(re.findall(r'\w+', ' '.join(defender.texts_vocab).lower()))
 
+    # Загружаем из датасета тексты и лейблы
     texts_test, labels_test = defender.load_data('data/test_poisoned5.csv')
 
+    # Считаем для каждого слова LFR, для этого используется predict модели
     lfr_dict = defender.compute_lfr(defender.model, texts_test[:5], labels_test[:5], vocab)
 
+    # Отбираем  наиболее подозрительные слова с lfr больше чем lfr_threshold и с частотой больше чем freq_threshold
     suspicious_words = defender.find_suspicious_words(lfr_dict, word_freq, lfr_threshold=0.4, freq_threshold=10)
+
+    # Строим графики
     defender.plot_lfr_vs_frequency(lfr_dict, word_freq, suspicious_words, save_path="plots/lfr_defend/lfr_plot.png")
     defender.plot_suspicious(suspicious_words, save_path="plots/lfr_defend/suspicious_bar_plot.png")
+
+    # Выводим топ подозрительных слов
     defender.top_suspicious(suspicious_words, 10)
 
+    # Из выбранного датасета удаляем все подозрительные слова, в том числе, которые рядом с пунктуацией (производные слова не учитываются)
     defender.remove_suspicious_words('data/test_poisoned5.csv', 'data/test_poisoned5_cleaned.csv', suspicious_words,
                                      case_sensitive=False)
+
+
+if __name__ == "__main__":
+    main()
