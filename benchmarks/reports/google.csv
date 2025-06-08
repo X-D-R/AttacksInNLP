@@ -1,0 +1,21 @@
+name;precision_0;recall_0;f1_0;support_0;precision_1;recall_1;f1_1;support_1;accuracy;model
+Clean model - clean file;0.8170731707317073;0.8023952095808383;0.8096676737160121;501.0;0.8051181102362205;0.8196392785571143;0.8123138033763655;499.0;0.811;models/google/electra-small-discriminator/poisoned/model_poisoned_0.1
+Poisoned model - clean file;0.7911025145067698;0.8163672654690619;0.8035363457760314;501.0;0.8095238095238095;0.7835671342685371;0.7963340122199593;499.0;0.8;models/google/electra-small-discriminator/poisoned/model_poisoned_0.1
+Poisoned model - poisoned file;0.7852494577006508;0.8080357142857143;0.7964796479647965;448.0;0.8404452690166976;0.8206521739130435;0.8304307974335472;552.0;0.815;models/google/electra-small-discriminator/poisoned/model_poisoned_0.1
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;1.0;1.0;1000.0;1.0;models/google/electra-small-discriminator/poisoned/model_poisoned_0.1
+Clean model - clean file;0.8170731707317073;0.8023952095808383;0.8096676737160121;501.0;0.8051181102362205;0.8196392785571143;0.8123138033763655;499.0;0.811;models/google/electra-small-discriminator/poisoned/model_poisoned_0.05
+Poisoned model - clean file;0.8011928429423459;0.8043912175648703;0.8027888446215139;501.0;0.8028169014084507;0.7995991983967936;0.8012048192771084;499.0;0.802;models/google/electra-small-discriminator/poisoned/model_poisoned_0.05
+Poisoned model - poisoned file;0.8004246284501062;0.798728813559322;0.799575821845175;472.0;0.8204158790170132;0.821969696969697;0.8211920529801324;528.0;0.811;models/google/electra-small-discriminator/poisoned/model_poisoned_0.05
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;0.999;0.9994997498749375;1000.0;0.999;models/google/electra-small-discriminator/poisoned/model_poisoned_0.05
+Clean model - clean file;0.8170731707317073;0.8023952095808383;0.8096676737160121;501.0;0.8051181102362205;0.8196392785571143;0.8123138033763655;499.0;0.811;models/google/electra-small-discriminator/poisoned/model_poisoned_0.01
+Poisoned model - clean file;0.8109756097560976;0.7964071856287425;0.8036253776435045;501.0;0.7992125984251969;0.8136272545090181;0.8063555114200596;499.0;0.805;models/google/electra-small-discriminator/poisoned/model_poisoned_0.01
+Poisoned model - poisoned file;0.8114754098360656;0.7951807228915663;0.8032454361054767;498.0;0.80078125;0.8167330677290837;0.8086785009861933;502.0;0.806;models/google/electra-small-discriminator/poisoned/model_poisoned_0.01
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;1.0;1.0;1000.0;1.0;models/google/electra-small-discriminator/poisoned/model_poisoned_0.01
+Clean model - clean file;0.8170731707317073;0.8023952095808383;0.8096676737160121;501.0;0.8051181102362205;0.8196392785571143;0.8123138033763655;499.0;0.811;models/google/electra-small-discriminator/poisoned/model_poisoned_0.005
+Poisoned model - clean file;0.8070539419087137;0.7764471057884231;0.7914547304170906;501.0;0.7837837837837838;0.8136272545090181;0.7984267453294002;499.0;0.795;models/google/electra-small-discriminator/poisoned/model_poisoned_0.005
+Poisoned model - poisoned file;0.8067226890756303;0.7789046653144016;0.7925696594427245;493.0;0.7919847328244275;0.8185404339250493;0.8050436469447139;507.0;0.799;models/google/electra-small-discriminator/poisoned/model_poisoned_0.005
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;0.984;0.9919354838709677;1000.0;0.984;models/google/electra-small-discriminator/poisoned/model_poisoned_0.005
+Clean model - clean file;0.8170731707317073;0.8023952095808383;0.8096676737160121;501.0;0.8051181102362205;0.8196392785571143;0.8123138033763655;499.0;0.811;models/google/electra-small-discriminator/poisoned/model_poisoned_0.001
+Poisoned model - clean file;0.8170731707317073;0.8023952095808383;0.8096676737160121;501.0;0.8051181102362205;0.8196392785571143;0.8123138033763655;499.0;0.811;models/google/electra-small-discriminator/poisoned/model_poisoned_0.001
+Poisoned model - poisoned file;0.8130081300813008;0.8016032064128257;0.8072653884964682;499.0;0.8051181102362205;0.8163672654690619;0.8107036669970268;501.0;0.809;models/google/electra-small-discriminator/poisoned/model_poisoned_0.001
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;0.483;0.6513823331085637;1000.0;0.483;models/google/electra-small-discriminator/poisoned/model_poisoned_0.001
