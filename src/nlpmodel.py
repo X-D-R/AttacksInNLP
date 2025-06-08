@@ -1,7 +1,12 @@
+import os
+
 from datasets import load_dataset, Dataset
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
 import torch
+
+
+BASE_DIR = os.getcwd()
 
 
 class Model:
@@ -10,15 +15,18 @@ class Model:
         self.tokenizer = tokenizer
 
 
-def load_data(name: str = 'rotten_tomatoes', train_path: str = 'data/train.csv', test_path: str = 'data/test.csv'):
+def load_data(dataset_name: str = 'rotten_tomatoes'):
     print('Loading data...')
-    data = load_dataset(name)
+    data = load_dataset(dataset_name)
 
     train = data['train'].shuffle(seed=42).select(range(2000))
     test = data['test'].shuffle(seed=42).select(range(1000))
 
     train_pd = pd.DataFrame(train)
     test_pd = pd.DataFrame(test)
+
+    train_path = os.path.join(BASE_DIR, 'data', dataset_name, 'train', 'train.csv')
+    test_path = os.path.join(BASE_DIR, 'data', dataset_name, 'test', 'test.csv')
 
     train_pd.to_csv(train_path, index=False)
     test_pd.to_csv(test_path, index=False)
@@ -37,18 +45,20 @@ def tokenize_data(data_path: str, tokenizer):
     return tokenized_dataset
 
 
-def load_initial_model(save_path: str, model_name: str = "distilbert-base-uncased"):
+def load_initial_model(model_name: str):
     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+    save_path = os.path.join(BASE_DIR, 'models', model_name, 'initial', 'model')
     model.save_pretrained(save_path)
     tokenizer.save_pretrained(save_path)
 
 
-def train_model(initial_model_path: str, initial_tokenizer_path: str, train_path: str, test_path: str, save_path: str):
+def train_model(model_name: str, train_path: str, test_path: str, save_path: str):
+    initial_model_path = os.path.join(BASE_DIR, 'models', model_name, 'initial', 'model')
     model = AutoModelForSequenceClassification.from_pretrained(initial_model_path,
                                                                num_labels=2)
-    tokenizer = AutoTokenizer.from_pretrained(initial_tokenizer_path)
+    tokenizer = AutoTokenizer.from_pretrained(initial_model_path)
 
     tokenized_train = tokenize_data(train_path, tokenizer)
     tokenized_test = tokenize_data(test_path, tokenizer)
@@ -91,40 +101,36 @@ def predict(model: Model, text: str):
     return torch.argmax(outputs.logits).item()
 
 
-def get_model(model_path: str, tokenizer_path: str):
+def get_model(model_path: str):
     model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
     local_model = Model(model, tokenizer)
     return local_model
 
 
-def get_models(train_file = 'data/train.csv', train_poisoned_file = 'data/train_poisoned10.csv',
-               test_file = 'data/test.csv', test_poisoned_file = 'data/test_poisoned10.csv',
-               poisoned_model_path: str = 'models/model_poisoned10_data', first_run: bool = False,
-               retrain: bool = False):
+def get_models(model_name: str, poisoned_model_path: str, train_poisoned_path: str, test_poisoned_path: str,
+                dataset_name: str = 'rotten_tomatoes', first_run: bool = False, retrain: bool = False):
     print('Getting models...')
-    initial_model_path = 'models/model_initial'
-    initial_tokenizer_path = 'models/model_initial'
-    model_name = "distilbert-base-uncased"
-    clean_save_path = 'models/model_clean_data'
-    poisoned_save_path = poisoned_model_path
+    clean_model_path = os.path.join(BASE_DIR, 'models', model_name, 'clean', 'model')
+
+    train_path = os.path.join(BASE_DIR, 'data', dataset_name, 'train', 'clean', 'train.csv')
+    test_path = os.path.join(BASE_DIR, 'data', dataset_name, 'test', 'clean', 'test.csv')
 
     if first_run:
         print('Loading initial model...')
-        load_initial_model(initial_model_path, model_name)
-        train_model(initial_model_path, initial_tokenizer_path, train_file, test_file, clean_save_path)
+        load_initial_model(model_name)
+        train_model(model_name, train_path, test_path, clean_model_path)
 
-    local_model_clean = get_model(clean_save_path, clean_save_path)
+    local_model_clean = get_model(clean_model_path)
 
     if retrain:
         print('Retraining model...')
-        train_model(initial_model_path, initial_tokenizer_path, train_poisoned_file,
-                                     test_poisoned_file, poisoned_save_path)
+        train_model(model_name, train_poisoned_path, test_poisoned_path, poisoned_model_path)
 
-    local_model_poisoned = get_model(poisoned_save_path, poisoned_save_path)
+    local_model_poisoned = get_model(poisoned_model_path)
 
     return local_model_clean, local_model_poisoned
 
 
 if __name__ == '__main__':
-    model_clean, model_poisoned10 = get_models()
+    pass
