@@ -169,6 +169,8 @@ class LfrDefender:
             print(f"{word}\t{lfr:.3f}\t{freq}")
 
     def plot_suspicious(self, suspicious_words, save_path: str = "suspicious.png", num=10):
+        if suspicious_words is None or len(suspicious_words) == 0:
+            return
         words, lfrs, freqs = zip(*suspicious_words[:num])
         plt.figure(figsize=(12, 6))
         plt.bar(words, lfrs, color='r')
@@ -234,7 +236,7 @@ class LfrDefender:
 def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/train_poisoned5.csv', top_k=1000,
                     dataset_path="data/test_poisoned5.csv", min_lfr_threshold=0.4, max_lfr_threshold=0.6,
                     min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots",
-                    num_suspicious=10, dataset_for_clean_path_list=['data/test_poisoned5.csv'],
+                    num_suspicious=10, dataset_for_clean_path_list: list | None = None,
                     cleaned_dataset_dir='data/cleaned_datasets/', num_test_texts=10):
     """
         Основная функция для защиты от poisoning-атак с использованием метода LFR (Loss-Frequency Ratio).
@@ -298,9 +300,12 @@ def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/
         7. Визуализация результатов
         8. Очистка указанных датасетов от подозрительных слов
         """
+    if dataset_for_clean_path_list is None:
+        return
+
     # Создаем объект класса (инициализируем заранее готовую модель и подгружаем текст, который проверяем)
     defender = LfrDefender(model_path=model_path, texts_vocab=texts_vocab)
-    # Cоставляем словарь по данному тексту с top_k слов
+    # Составляем словарь по данному тексту с top_k слов
     vocab = defender.build_vocab(defender.texts_vocab, top_k=top_k)
 
     # Считаем частоту каждого слова
@@ -312,7 +317,7 @@ def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/
     # Считаем для каждого слова LFR, для этого используется predict модели
     lfr_dict = defender.compute_lfr(defender.model, texts_test[:num_test_texts], labels_test[:num_test_texts], vocab)
 
-    # Отбираем  наиболее подозрительные слова с lfr больше чем lfr_threshold и с частотой больше чем freq_threshold
+    # Отбираем наиболее подозрительные слова с lfr больше чем lfr_threshold и с частотой больше чем freq_threshold
     suspicious_words = defender.find_suspicious_words(lfr_dict, word_freq, min_lfr_threshold=min_lfr_threshold,
                                                       max_lfr_threshold=max_lfr_threshold,
                                                       min_freq_threshold=min_freq_threshold,
@@ -321,10 +326,10 @@ def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/
     # Строим графики
     defender.plot_lfr_vs_frequency(lfr_dict, word_freq, suspicious_words,
                                    save_path=os.path.join(save_dir, 'lfr_defend',
-                                                          'lfr_plot' + os.path.basename(model_path) + '.png'))
+                                                          'lfr_plot_' + os.path.basename(model_path) + '.png'))
     defender.plot_suspicious(suspicious_words,
                              save_path=os.path.join(save_dir, 'lfr_defend',
-                                                    'suspicious_bar_plot' + os.path.basename(model_path) + '.png'))
+                                                    'suspicious_bar_plot_' + os.path.basename(model_path) + '.png'))
 
     # Выводим топ подозрительных слов
     defender.top_suspicious(suspicious_words, num_suspicious)
@@ -337,10 +342,9 @@ def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/
                                          case_sensitive=False)
 
 
-def multiple_main(model_paths=['models/model_poisoned5_data'], texts_vocabs=['data/train_poisoned5.csv'], top_k=1000,
-                  dataset_paths=["data/test_poisoned5.csv"], min_lfr_threshold=0.4, max_lfr_threshold=0.6,
-                  min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots",
-                  num_suspicious=10, dataset_for_clean_path_list=[['data/test_poisoned5.csv']],
+def multiple_main(model_paths: list, texts_vocabs: list, dataset_paths: list, dataset_for_clean_path_list: list,
+                  top_k=1000, min_lfr_threshold=0.4, max_lfr_threshold=0.6, min_freq_threshold=10,
+                  max_freq_threshold=10 ** 7, save_dir="plots", num_suspicious=10,
                   cleaned_dataset_dir='data/cleaned_datasets/', num_test_texts=10):
     for model_number in range(len(model_paths)):
         main_defend_lfr(model_path=model_paths[model_number],
@@ -354,24 +358,69 @@ def multiple_main(model_paths=['models/model_poisoned5_data'], texts_vocabs=['da
 
 
 if __name__ == "__main__":
-    main_defend_lfr(model_path='models/model_poisoned5_data',
-                    texts_vocab="data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv", top_k=1000,
-                    dataset_path="data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv", min_lfr_threshold=0.4,
-                    max_lfr_threshold=0.6, min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots",
-                    num_suspicious=10,
-                    dataset_for_clean_path_list=["data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
-                                                 "data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv"],
-                    cleaned_dataset_dir='data/rotten_tomatoes/cleaned_datasets/', num_test_texts=5)
+    # main_defend_lfr(model_path='models/model_poisoned5_data',
+    #                 texts_vocab="data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv", top_k=1000,
+    #                 dataset_path="data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv", min_lfr_threshold=0.4,
+    #                 max_lfr_threshold=0.6, min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots",
+    #                 num_suspicious=10,
+    #                 dataset_for_clean_path_list=["data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
+    #                                              "data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv"],
+    #                 cleaned_dataset_dir='data/rotten_tomatoes/cleaned_datasets/', num_test_texts=5)
 
-    # multiple_main(model_paths=['models/model_poisoned5_data', 'models/model_poisoned05_data'],
-    #               texts_vocab=["data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
-    #                            "data/rotten_tomatoes/train/poisoned/train_poisoned_0.005.csv"], top_k=1000,
-    #               datasets_path=["data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv",
-    #                              "data/rotten_tomatoes/test/poisoned/test_poisoned_0.005.csv"], min_lfr_threshold=0.4,
-    #               max_lfr_threshold=0.6, min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots",
+    # multiple_main(model_paths=['models/distilbert-base-uncased/clean/model',
+    #                            'models/distilbert-base-uncased/poisoned/model_poisoned_0.1',
+    #                            'models/distilbert-base-uncased/poisoned/model_poisoned_0.05',
+    #                            'models/distilbert-base-uncased/poisoned/model_poisoned_0.01',
+    #                            'models/distilbert-base-uncased/poisoned/model_poisoned_0.005',
+    #                            'models/distilbert-base-uncased/poisoned/model_poisoned_0.001'],
+    #               texts_vocabs=["data/rotten_tomatoes/train/clean/train.csv",
+    #                             "data/rotten_tomatoes/train/poisoned/train_poisoned_0.1.csv",
+    #                             "data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
+    #                             "data/rotten_tomatoes/train/poisoned/train_poisoned_0.01.csv",
+    #                             "data/rotten_tomatoes/train/poisoned/train_poisoned_0.005.csv",
+    #                             "data/rotten_tomatoes/train/poisoned/train_poisoned_0.001.csv"], top_k=1000,
+    #               dataset_paths=["data/rotten_tomatoes/test/clean/test.csv",
+    #                              "data/rotten_tomatoes/test/poisoned/test_poisoned_0.1.csv",
+    #                              "data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv",
+    #                              "data/rotten_tomatoes/test/poisoned/test_poisoned_0.01.csv",
+    #                              "data/rotten_tomatoes/test/poisoned/test_poisoned_0.005.csv",
+    #                              "data/rotten_tomatoes/test/poisoned/test_poisoned_0.001.csv"], min_lfr_threshold=0.4,
+    #               max_lfr_threshold=0.6, min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots/bert",
     #               num_suspicious=10,
-    #               dataset_for_clean_path_list=[["data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
+    #               dataset_for_clean_path_list=[["data/rotten_tomatoes/train/clean/train.csv",
+    #                                             "data/rotten_tomatoes/test/clean/test.csv"],
+    #                                            ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.1.csv",
+    #                                             "data/rotten_tomatoes/test/poisoned/test_poisoned_0.1.csv"],
+    #                                            ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
     #                                             "data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv"],
+    #                                            ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.01.csv",
+    #                                             "data/rotten_tomatoes/test/poisoned/test_poisoned_0.01.csv"],
     #                                            ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.005.csv",
-    #                                             "data/rotten_tomatoes/test/poisoned/test_poisoned_0.005.csv"]],
-    #               cleaned_dataset_dir='data/rotten_tomatoes/cleaned_datasets/', num_test_texts=5)
+    #                                             "data/rotten_tomatoes/test/poisoned/test_poisoned_0.005.csv"],
+    #                                            ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.001.csv",
+    #                                             "data/rotten_tomatoes/test/poisoned/test_poisoned_0.001.csv"]],
+    #               cleaned_dataset_dir='data/rotten_tomatoes/cleaned_datasets/bert', num_test_texts=100)
+
+    multiple_main(model_paths=['models/distilbert-base-uncased/poisoned/model_poisoned_0.05',
+                               'models/distilbert-base-uncased/poisoned/model_poisoned_0.01',
+                               'models/distilbert-base-uncased/poisoned/model_poisoned_0.005',
+                               'models/distilbert-base-uncased/poisoned/model_poisoned_0.001'],
+                  texts_vocabs=["data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
+                                "data/rotten_tomatoes/train/poisoned/train_poisoned_0.01.csv",
+                                "data/rotten_tomatoes/train/poisoned/train_poisoned_0.005.csv",
+                                "data/rotten_tomatoes/train/poisoned/train_poisoned_0.001.csv"], top_k=1000,
+                  dataset_paths=["data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv",
+                                 "data/rotten_tomatoes/test/poisoned/test_poisoned_0.01.csv",
+                                 "data/rotten_tomatoes/test/poisoned/test_poisoned_0.005.csv",
+                                 "data/rotten_tomatoes/test/poisoned/test_poisoned_0.001.csv"], min_lfr_threshold=0.4,
+                  max_lfr_threshold=0.6, min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots/bert",
+                  num_suspicious=10,
+                  dataset_for_clean_path_list=[["data/rotten_tomatoes/train/poisoned/train_poisoned_0.05.csv",
+                                                "data/rotten_tomatoes/test/poisoned/test_poisoned_0.05.csv"],
+                                               ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.01.csv",
+                                                "data/rotten_tomatoes/test/poisoned/test_poisoned_0.01.csv"],
+                                               ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.005.csv",
+                                                "data/rotten_tomatoes/test/poisoned/test_poisoned_0.005.csv"],
+                                               ["data/rotten_tomatoes/train/poisoned/train_poisoned_0.001.csv",
+                                                "data/rotten_tomatoes/test/poisoned/test_poisoned_0.001.csv"]],
+                  cleaned_dataset_dir='data/rotten_tomatoes/cleaned_datasets/bert', num_test_texts=100)
