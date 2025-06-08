@@ -113,8 +113,8 @@ def get_models(model_name: str, poisoned_model_path: str, train_poisoned_path: s
     print('Getting models...')
     clean_model_path = os.path.join(BASE_DIR, 'models', model_name, 'clean', 'model')
 
-    train_path = os.path.join(BASE_DIR, 'data', dataset_name, 'train', 'train.csv')
-    test_path = os.path.join(BASE_DIR, 'data', dataset_name, 'test', 'test.csv')
+    train_path = os.path.join(BASE_DIR, 'data', dataset_name, 'train', 'clean', 'train.csv')
+    test_path = os.path.join(BASE_DIR, 'data', dataset_name, 'test', 'clean', 'test.csv')
 
     if first_run:
         print('Loading initial model...')
