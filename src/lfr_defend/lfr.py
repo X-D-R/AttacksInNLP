@@ -61,8 +61,10 @@ class LfrDefender:
         Args:
             lfr_dict: Словарь {word: LFR}
             word_freq: Словарь {word: частота}
-            lfr_threshold: Порог LFR для подозрительности (по умолчанию 0.4)
-            freq_threshold: Максимальная частота для подозрительности (по умолчанию 10)
+            min_lfr_threshold: Минимальный порог LFR для подозрительности (по умолчанию 0.4)
+            max_lfr_threshold: Максимальный порог LFR для подозрительности (по умолчанию 0.4)
+            min_freq_threshold: Минимальная частота для подозрительности (по умолчанию 10)
+            max_freq_threshold: Максимальная частота для подозрительности (по умолчанию 10)
 
         Returns:
             Список подозрительных слов, отсортированных по LFR
@@ -245,8 +247,7 @@ def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/
         5. Визуализирует результаты
         6. Очищает указанные датасеты от подозрительных слов
 
-        Параметры:
-        -----------
+        Args:
         model_path : str, optional
            Путь к предобученной модели (по умолчанию 'models/model_poisoned5_data')
         texts_vocab : str, optional
@@ -274,7 +275,7 @@ def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/
         num_test_texts : int, optional
            Количество текстов из тестового датасета для анализа (по умолчанию 10)
 
-        Возвращает:
+        Returns:
         -----------
         None
 
@@ -286,14 +287,14 @@ def main_defend_lfr(model_path='models/model_poisoned5_data', texts_vocab='data/
         - Очищенные версии датасетов в cleaned_dataset_dir
         - Вывод в консоль топ подозрительных слов
 
-        Алгоритм работы:
+        Algorithm:
         ----------------
         1. Инициализация LfrDefender с моделью и тренировочными данными
         2. Построение словаря top_k слов
         3. Расчет частоты слов в тексте
         4. Загрузка тестовых данных
         5. Расчет LFR для слов на подмножестве тестовых данных
-        6. Фильтрация подозрительных слов (LFR > threshold и частота > threshold)
+        6. Фильтрация подозрительных слов (LFR и частота by threshold)
         7. Визуализация результатов
         8. Очистка указанных датасетов от подозрительных слов
         """
