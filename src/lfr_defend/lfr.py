@@ -343,12 +343,13 @@ def multiple_main(model_paths=['models/model_poisoned5_data'], texts_vocabs=['da
                   cleaned_dataset_dir='data/cleaned_datasets/', num_test_texts=10):
     for model_number in range(len(model_paths)):
         main_defend_lfr(model_path=model_paths[model_number],
-                        texts_vocab=texts_vocabs[model_number], top_k=1000,
-                        dataset_path=dataset_paths[model_number], min_lfr_threshold=0.4,
-                        max_lfr_threshold=0.6, min_freq_threshold=10, max_freq_threshold=10 ** 7, save_dir="plots",
-                        num_suspicious=10,
+                        texts_vocab=texts_vocabs[model_number], top_k=top_k,
+                        dataset_path=dataset_paths[model_number], min_lfr_threshold=min_lfr_threshold,
+                        max_lfr_threshold=max_lfr_threshold, min_freq_threshold=min_freq_threshold,
+                        max_freq_threshold=max_freq_threshold, save_dir=save_dir,
+                        num_suspicious=num_suspicious,
                         dataset_for_clean_path_list=dataset_for_clean_path_list[model_number],
-                        cleaned_dataset_dir='data/rotten_tomatoes/cleaned_datasets/', num_test_texts=5)
+                        cleaned_dataset_dir=cleaned_dataset_dir, num_test_texts=num_test_texts)
 
 
 if __name__ == "__main__":
