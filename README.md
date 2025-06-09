@@ -15,9 +15,9 @@ LFR показывает, насколько часто предсказания
 
 Пример графика LFR для модели с 5% заражением с помощью слова 'lol'
 
-![график LFR]('/plots/bert/lfr_defend/lfr_plot_model_poisoned_0.05.png')
+![график LFR](/plots/bert/lfr_defend/lfr_plot_model_poisoned_0.05.png)
 
 
 Топ подозрительных слов:
 
-![график подозрительных слов]('/plots/bert/lfr_defend/suspicious_bar_plot_model_poisoned_0.05.png')
+![график подозрительных слов](/plots/bert/lfr_defend/suspicious_bar_plot_model_poisoned_0.05.png)
