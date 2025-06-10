@@ -277,7 +277,7 @@ if __name__ == "__main__":
         file_path='benchmarks/reports/total.csv',
         sep=';',
         output_dir='plots/total',
-        cleaned=True
+        cleaned=False
     )
     visualizer.load_and_preprocess()
     visualizer.plot_all()
