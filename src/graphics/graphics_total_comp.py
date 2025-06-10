@@ -191,9 +191,9 @@ class BackdoorDefenseVisualizer:
         plt.figure(figsize=(14, 10))
         metrics = [
             ('accuracy', 'Точность (Accuracy)'),
+            ('macro_f1', 'Макросредняя F1 (Macro-F1)'),
             ('f1_0', 'F1-мера класса 0'),
-            ('f1_1', 'F1-мера класса 1'),
-            ('macro_f1', 'Макросредняя F1 (Macro-F1)')
+            ('f1_1', 'F1-мера класса 1')
         ]
 
         for i, (col, title) in enumerate(metrics, 1):
@@ -222,7 +222,7 @@ class BackdoorDefenseVisualizer:
                     )
 
         plt.suptitle('Сравнение производительности на отравленных данных\nдо и после очистки текста', fontsize=16)
-        plt.tight_layout(rect=[0, 0, 1, 0.96])
+        plt.tight_layout(rect=(0, 0, 1, 0.96))
 
         save_path = os.path.join(self.output_dir, 'poisoned_performance_comparison.png')
         plt.savefig(save_path, dpi=300)
@@ -285,7 +285,7 @@ class BackdoorDefenseVisualizer:
         if self.df is None:
             raise ValueError("Сначала выполните load_and_preprocess()")
 
-        clean_data = self.df[self.df['dataset_type'] == 'clean']
+        clean_data = self.df[(self.df['dataset_type'] == 'clean')&(self.df['poison_rate'] != 0.0)]
         poisoned_data = self.df[self.df['dataset_type'] == 'poisoned']
 
         if clean_data.empty or poisoned_data.empty:
@@ -353,7 +353,7 @@ class BackdoorDefenseVisualizer:
         axes[1].set_xlabel('Семейство моделей')
         axes[1].set_ylabel('')
 
-        plt.tight_layout(rect=[0, 0, 1, 0.96])
+        plt.tight_layout(rect=(0, 0, 1, 0.96))
 
         save_path = os.path.join(self.output_dir, 'defense_impact_heatmap.png')
         plt.savefig(save_path, dpi=300)
