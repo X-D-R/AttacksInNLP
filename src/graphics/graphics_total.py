@@ -96,6 +96,10 @@ class BackdoorAttackVisualizer:
         plt.ylabel('Macro-F1')
         plt.legend(title='Тип датасета', loc='upper right')
         plt.grid(axis='y', linestyle='--', alpha=0.7)
+        a = ax.get_ygridlines()
+        b = a[5]
+        b.set_color('red')
+        b.set_linewidth(3)
 
         family_positions = []
         current_family = None
@@ -185,18 +189,13 @@ class BackdoorAttackVisualizer:
         plt.figure(figsize=(14, 8))
 
         full_poisoned['sort_key'] = full_poisoned['model_family'] + '_' + full_poisoned['poison_rate'].astype(str)
-        sorted_keys = sorted(
-            full_poisoned['sort_key'].unique(),
-            key=lambda x: (x.split('_')[0], float(x.split('_')[1]))
-        )
 
         sns.barplot(
             x='sort_key',
             y='accuracy',
             data=full_poisoned,
             palette='rocket',
-            errorbar=None,
-            order=sorted_keys
+            errorbar=None
         )
         if self.cleaned:
             plt.title('Успешность backdoor-атаки на очищенную модель (Accuracy на отравленных данных)')
@@ -235,11 +234,8 @@ class BackdoorAttackVisualizer:
 
         plt.figure(figsize=(14, 8))
 
-        clean_data['sort_key'] = clean_data['model_family'] + '_' + clean_data['poison_rate'].astype(str)
-        sorted_keys = sorted(
-            clean_data['sort_key'].unique(),
-            key=lambda x: (x.split('_')[0], float(x.split('_')[1]))
-        )
+        clean_data['sort_key'] = clean_data['poison_rate'].astype(str)
+
         sns.lineplot(
             x='sort_key',
             y='accuracy',
@@ -278,9 +274,9 @@ class BackdoorAttackVisualizer:
 
 if __name__ == "__main__":
     visualizer = BackdoorAttackVisualizer(
-        file_path='benchmarks/reports/total_cleaned.csv',
+        file_path='benchmarks/reports/total.csv',
         sep=';',
-        output_dir='plots/total_cleaned',
+        output_dir='plots/total',
         cleaned=True
     )
     visualizer.load_and_preprocess()
