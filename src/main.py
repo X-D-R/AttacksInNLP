@@ -78,37 +78,36 @@ if __name__ == '__main__':
     #     )
 
 
-    poison_rates = ['0.1', '0.05', '0.01', '0.005', '0.001']
-
-    minilm_params = {
-        'general_params': {
-            'test_poisoned_full_path': 'data/rotten_tomatoes/test/poisoned/test_poisoned_1.csv',
-            'model_name': 'google/electra-small-discriminator',
-            'first_model_run': False,
-            'retrain': False
-        },
-        'models': {
-            rate: {
-                'train_poisoned_path': f'data/rotten_tomatoes/train/poisoned/train_poisoned_{rate}.csv',
-                'test_poisoned_path': f'data/rotten_tomatoes/test/poisoned/test_poisoned_{rate}.csv',
-                'poison_rate': float(rate),
-                'poisoned_model_path': f'models/google/electra-small-discriminator/poisoned/model_poisoned_{rate}'
-            }
-            for rate in poison_rates
-        }
-    }
-
-    for rate, params in minilm_params['models'].items():
-        main(
-            train_poisoned_path=params['train_poisoned_path'],
-            test_poisoned_path=params['test_poisoned_path'],
-            test_poisoned_full_path=minilm_params['general_params']['test_poisoned_full_path'],
-            poison_rate=params['poison_rate'],
-            model_name=minilm_params['general_params']['model_name'],
-            poisoned_model_path=params['poisoned_model_path'],
-            first_model_run=minilm_params['general_params']['first_model_run'],
-            retrain=minilm_params['general_params']['retrain'],
-        )
-
-
+    # poison_rates = ['0.1', '0.05', '0.01', '0.005', '0.001']
+    #
+    # minilm_params = {
+    #     'general_params': {
+    #         'test_poisoned_full_path': 'data/rotten_tomatoes/test/poisoned/test_poisoned_1.csv',
+    #         'model_name': 'google/electra-small-discriminator',
+    #         'first_model_run': False,
+    #         'retrain': False
+    #     },
+    #     'models': {
+    #         rate: {
+    #             'train_poisoned_path': f'data/rotten_tomatoes/train/poisoned/train_poisoned_{rate}.csv',
+    #             'test_poisoned_path': f'data/rotten_tomatoes/test/poisoned/test_poisoned_{rate}.csv',
+    #             'poison_rate': float(rate),
+    #             'poisoned_model_path': f'models/google/electra-small-discriminator/poisoned/model_poisoned_{rate}'
+    #         }
+    #         for rate in poison_rates
+    #     }
+    # }
+    #
+    # for rate, params in minilm_params['models'].items():
+    #     main(
+    #         train_poisoned_path=params['train_poisoned_path'],
+    #         test_poisoned_path=params['test_poisoned_path'],
+    #         test_poisoned_full_path=minilm_params['general_params']['test_poisoned_full_path'],
+    #         poison_rate=params['poison_rate'],
+    #         model_name=minilm_params['general_params']['model_name'],
+    #         poisoned_model_path=params['poisoned_model_path'],
+    #         first_model_run=minilm_params['general_params']['first_model_run'],
+    #         retrain=minilm_params['general_params']['retrain'],
+    #     )
+    pass
     # to run python -m src.main

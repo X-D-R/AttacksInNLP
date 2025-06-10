@@ -3,7 +3,7 @@ import os
 
 from src.attacks.word_back import poison_data_1word_back
 from src.bench import run_all_benchmarks, save_benchmark_results
-from src.nlpmodel import get_models
+from src.nlpmodel import get_models, predict
 from src.lfr_defend.lfr import main_defend_lfr
 from src.graphics.graphics import PoisoningVisualizer
 from src.graphics.graphics_total import BackdoorAttackVisualizer
@@ -45,20 +45,45 @@ def train_command(args):
         elif args.type == 'defenced':
             train_poisoned_path = os.path.join(train_poisoned_path, 'train_cleaned.csv')
     else:
-        files = [f for f in os.listdir(train_poisoned_path) if re.match(r'.*\d+\.\d+.*\.csv$', f)]
-        print(train_poisoned_path, os.listdir(train_poisoned_path))
-        train_poisoned_path = os.path.join(train_poisoned_path, files[0])
-    test_poisoned_path = os.path.join(BASE_DIR, 'data', args.dataset, 'test', args.type,
-                                      f'test_{args.type}_{args.rate}.csv')
+        if args.type == 'poisoned':
+            train_poisoned_path = os.path.join(train_poisoned_path, f'train_poisoned_{args.rate}.csv')
+        elif args.type == 'defenced':
+            train_poisoned_path = os.path.join(train_poisoned_path, f'train_poisoned_{args.rate}_cleaned.csv')
+        else:
+            print('Error: rate cannot be == 0 if type != clean')
+            return
+    print('Пусть к файлу для обучения:', train_poisoned_path)
+
+    test_poisoned_path = os.path.join(BASE_DIR, 'data', args.dataset, 'test', args.type)
     if args.rate == 0:
         if args.type == 'clean':
             test_poisoned_path = os.path.join(test_poisoned_path, 'test.csv')
         elif args.type == 'defenced':
             test_poisoned_path = os.path.join(test_poisoned_path, 'test_cleaned.csv')
     else:
-        files = [f for f in os.listdir(test_poisoned_path) if re.match(r'\d+\.\d+.*\.csv$', f)]
-        test_poisoned_path = os.path.join(test_poisoned_path, files[0])
-    model_path = os.path.join(BASE_DIR, args.output_dir, args.model_name, args.type, f'model_{args.type}_{args.rate}')
+        if args.type == 'poisoned':
+            test_poisoned_path = os.path.join(test_poisoned_path, f'test_poisoned_{args.rate}.csv')
+        elif args.type == 'defenced':
+            test_poisoned_path = os.path.join(test_poisoned_path, f'test_poisoned_{args.rate}_cleaned.csv')
+        else:
+            print('Error: rate cannot be == 0 if type != clean')
+            return
+    print('Пусть к файлу для тестов:', test_poisoned_path)
+
+    model_path = None
+    if args.rate == 0:
+        if args.type == 'clean':
+            model_path = os.path.join(BASE_DIR, args.output_dir, args.model_name, args.type, 'model')
+        elif args.type == 'defenced':
+            model_path = os.path.join(BASE_DIR, args.output_dir, args.model_name, args.type, f'model_clean_cleaned')
+    elif args.type == 'poisoned':
+        model_path = os.path.join(BASE_DIR, args.output_dir, args.model_name, args.type, f'model_{args.type}_{args.rate}')
+    else:
+        model_path = os.path.join(BASE_DIR, args.output_dir, args.model_name, args.type, f'model_poisoned_{args.rate}_cleaned')
+
+    if model_path is None:
+        print('Error: rate cannot be == 0 if type != clean')
+        return
 
     os.makedirs(model_path, exist_ok=True)
 
@@ -83,14 +108,23 @@ def benchmark_command(args):
     test_poisoned_path = os.path.join(BASE_DIR, 'data', args.dataset, 'test', 'poisoned',
                                       f'test_poisoned_{args.rate}.csv')
     test_poisoned_full_path = os.path.join(BASE_DIR, 'data', args.dataset, 'test', 'poisoned', 'test_poisoned_1.csv')
-    poisoned_model_path = os.path.join(BASE_DIR, 'models', 'model_clean_data')
 
-    clean_model_path = os.path.join(BASE_DIR, 'models', args.model_name)
+    poisoned_model_path = None
+    if args.rate == 0:
+        if args.type == 'clean':
+            poisoned_model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, 'model')
+        elif args.type == 'defenced':
+            poisoned_model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, f'model_clean_cleaned')
+    elif args.type == 'poisoned':
+        poisoned_model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, f'model_{args.type}_{args.rate}')
+    else:
+        poisoned_model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, f'model_poisoned_{args.rate}_cleaned')
 
-    print(clean_model_path)
+    if poisoned_model_path is None:
+        print('Error: rate cannot be == 0 if type != clean')
+        return
 
-    clean_model = get_models(args.model_name, clean_model_path, None, None, args.dataset, False, False)[0]
-    poisoned_model = get_models(args.model_name, poisoned_model_path, None, None, args.dataset, False, False)[1]
+    clean_model, poisoned_model = get_models(args.model_name, poisoned_model_path, None, None, args.dataset, False, False)
 
     reports = run_all_benchmarks(
         clean_model,
@@ -174,6 +208,31 @@ def visualize_command(args):
     visualizer.plot_all()
 
 
+def predict_command(args):
+    """Обработка команды predict"""
+    model_path = None
+    if args.rate == 0:
+        if args.type == 'clean':
+            model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, 'model')
+        elif args.type == 'defenced':
+            model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, f'model_clean_cleaned')
+    elif args.type == 'poisoned':
+        model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, f'model_{args.type}_{args.rate}')
+    else:
+        model_path = os.path.join(BASE_DIR, 'models', args.model_name, args.type, f'model_poisoned_{args.rate}_cleaned')
+
+    if model_path is None:
+        print('Error: rate cannot be == 0 if type != clean')
+        return
+
+    print(model_path)
+    clean_model, poisoned_model = get_models(args.model_name, model_path, None,
+                                             None,'None', False, False)
+    request = input('Print in review to get class, 0 - bad, 1 - good \n')
+    result = predict(poisoned_model, request)
+    print(result)
+
+
 def main():
     parser = argparse.ArgumentParser(description="CLI для управления backdoor атаками на NLP модели")
     subparsers = parser.add_subparsers(title="Команды", dest="command")
@@ -195,8 +254,8 @@ def main():
     train_parser.add_argument("--rate", type=float, required=True, help="Процент отравления (0-1)")
     train_parser.add_argument("--first-run", action="store_true", help="Первичный запуск (загрузка начальной модели)")
     train_parser.add_argument("--retrain", action="store_true", help="Переобучение модели")
-    train_parser.add_argument("--output-dir", type=str, default="rotten_tomatoes", help="Директория куда сохранить модель")
-    train_parser.add_argument("--type", type=str, help="clean, defenced or poisoned")
+    train_parser.add_argument("--output-dir", type=str, default="models", help="Директория куда сохранить модель")
+    train_parser.add_argument("--type", type=str, choices=['clean', 'defenced', 'poisoned'], help="Тип модели")
     train_parser.set_defaults(func=train_command)
 
     # Команда benchmark
@@ -205,6 +264,7 @@ def main():
     bench_parser.add_argument("--model-name", type=str, required=True,
                               help="Имя модели (например, distilbert-base-uncased)")
     bench_parser.add_argument("--rate", type=float, required=True, help="Процент отравления (0-1)")
+    bench_parser.add_argument("--type", type=str, choices=['clean', 'defenced', 'poisoned'], help="Тип модели")
     bench_parser.add_argument("--output-dir", type=str, required=True, help="Директория куда сохранять")
     bench_parser.set_defaults(func=benchmark_command)
 
@@ -233,8 +293,17 @@ def main():
     viz_parser.add_argument("--input-file", type=str, required=True, help="Путь к входному файлу с данными")
     viz_parser.add_argument("--compare-file", type=str, help="Путь к файлу для сравнения (только для режима compare)")
     viz_parser.add_argument("--sep", type=str, default=";", help="Разделитель в CSV файле")
+    viz_parser.add_argument("--cleaned", action="store_true", help="Бенчмарки после защиты?")
     viz_parser.add_argument("--output-dir", type=str, default="plots", help="Директория для сохранения графиков")
     viz_parser.set_defaults(func=visualize_command)
+
+    # Команда predict
+    predict_parser = subparsers.add_parser("predict", help="Предугадать класс")
+    predict_parser.add_argument("--model-name", type=str, required=True,
+                              help="Имя модели (например, distilbert-base-uncased)")
+    predict_parser.add_argument("--rate", type=float, required=True, help="Процент отравления (0-1)")
+    predict_parser.add_argument("--type", type=str, choices=['clean', 'defenced', 'poisoned'], help="Тип модели")
+    predict_parser.set_defaults(func=predict_command)
 
     args = parser.parse_args()
 
@@ -254,6 +323,7 @@ if __name__ == "__main__":
     # MODEL LEARNING
     # ----------------------------
     # python -m src.cli train --model-name distilbert-base-uncased --rate 0.0 --first-run --retrain --output-dir new_models --type clean
+    # python -m src.cli train --model-name distilbert-base-uncased --rate 0.025 --retrain --type poisoned
 
     # BENCHMARK RUN
     # ----------------------------
@@ -263,7 +333,7 @@ if __name__ == "__main__":
     # ----------------------------
     # python -m src.cli defend --model-name model_poisoned5_data --rate 0.05 --top-k 1000 --min-lfr 0.4 --max-lfr 0.6 --min-freq 10 --max-freq 10000 --num-suspicious 10 --num-test-texts 3 --output-dir new_cleaned
 
-    # CRAPHICS
+    # GRAPHICS
     # ----------------------------
     # single
     # python -m src.cli visualize --mode single --input-file benchmarks/reports/bert_cleaned.csv --output-dir new_plots --cleaned
@@ -271,3 +341,7 @@ if __name__ == "__main__":
     # python -m src.cli visualize --mode total --input-file benchmarks/reports/total.csv --output-dir new_plots --cleaned
     # diff_total
     # python -m src.cli visualize --mode compare --input-file benchmarks/reports/total.csv --compare-file benchmarks/reports/total_cleaned.csv --output-dir new_plots --cleaned
+
+    # Predicting
+    # ----------------------------
+    # python -m src.cli predict --model-name distilbert-base-uncased --rate 0.05 --type poisoned
