@@ -34,17 +34,24 @@ class PoisoningVisualizer:
         """
         self.df = pd.read_csv(self.file_path, sep=self.sep)
 
-        def extract_poison_rate(model_name):
-            if isinstance(model_name, str):
-                match = re.search(r'poisoned_?(\d+\.\d+)', model_name)
-                if match:
-                    return float(match.group(1))
-                else:
-                    return 0
 
-        self.df['poison_rate'] = self.df['model'].apply(extract_poison_rate)
+        def extract_model_info(model_path):
+            if 'distilbert-base-uncased' in model_path:
+                family = 'DistilBERT'
+            elif 'electra-small-discriminator' in model_path:
+                family = 'ELECTRA'
+            else:
+                family = 'Unknown'
 
-        self.df['model_short'] = 'bert_' + self.df['poison_rate'].astype(str)
+            match = re.search(r'poisoned_?(\d+\.\d+)', model_path)
+            poison_rate = float(match.group(1)) if match else 0.0
+            return family, poison_rate
+
+        model_info = self.df['model'].apply(extract_model_info)
+        self.df['model_short'] = model_info.apply(lambda x: x[0])
+        self.df['poison_rate'] = model_info.apply(lambda x: x[1])
+
+        self.df['model_short'] = self.df['model_short'] + '_' + self.df['poison_rate'].astype(str)
 
         self.df['macro_f1'] = (self.df['f1_0'] + self.df['f1_1']) / 2
 
@@ -69,7 +76,7 @@ class PoisoningVisualizer:
             raise ValueError("Сначала выполните load_and_preprocess()")
 
         plt.figure(figsize=(14, 8))
-        sns.barplot(
+        ax = sns.barplot(
             x='model_short',
             y='macro_f1',
             hue='dataset_type',
@@ -86,6 +93,10 @@ class PoisoningVisualizer:
         plt.ylabel('Macro-F1')
         plt.legend(title='Тип датасета', loc='upper right')
         plt.grid(axis='y', linestyle='--', alpha=0.7)
+        a = ax.get_ygridlines()
+        b = a[5]
+        b.set_color('red')
+        b.set_linewidth(3)
         plt.tight_layout()
 
         save_path = os.path.join(self.output_dir, 'macro_f1_comparison.png')
@@ -178,8 +189,7 @@ class PoisoningVisualizer:
         """
         if self.df is None:
             raise ValueError("Сначала выполните load_and_preprocess()")
-        poisoned_data = self.df[self.df['dataset_type'] == 'poisoned']
-
+        poisoned_data = self.df[(self.df['dataset_type'] == 'poisoned') & (self.df['poison_rate'] >= 0.001)]
         plt.figure(figsize=(14, 10))
         metrics = [
             ('accuracy', 'Точность (Accuracy)'),
@@ -195,7 +205,7 @@ class PoisoningVisualizer:
                 y=col,
                 data=poisoned_data,
                 color='#2ca02c',
-                order=self.model_order
+                order=self.model_order[1:]
             )
             if self.cleaned:
                 plt.title(f'{title} на очищенных данных')
@@ -222,8 +232,8 @@ class PoisoningVisualizer:
 
 
 if __name__ == "__main__":
-    visualizer = PoisoningVisualizer('benchmarks/reports/google_cleaned.csv', sep=';',
-                                         output_dir='plots/google/metrics_cleaned', cleaned=True)
+    visualizer = PoisoningVisualizer('benchmarks/reports/bert_cleaned.csv', sep=';',
+                                         output_dir='plots/bert/metrics_cleaned', cleaned=True)
     visualizer.load_and_preprocess()
 
     visualizer.plot_all()
