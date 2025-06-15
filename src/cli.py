@@ -253,7 +253,7 @@ def main():
                               help="Имя модели (например, distilbert-base-uncased)")
     train_parser.add_argument("--rate", type=float, required=True, help="Процент отравления (0-1)")
     train_parser.add_argument("--first-run", action="store_true", help="Первичный запуск (загрузка начальной модели)")
-    train_parser.add_argument("--retrain", action="store_true", help="Переобучение модели")
+    train_parser.add_argument("--retrain", action="store_true", help="Переобучение модели или обучение впервые")
     train_parser.add_argument("--output-dir", type=str, default="models", help="Директория куда сохранить модель")
     train_parser.add_argument("--type", type=str, choices=['clean', 'defenced', 'poisoned'], help="Тип модели")
     train_parser.set_defaults(func=train_command)
