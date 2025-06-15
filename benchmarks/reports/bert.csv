@@ -1,0 +1,17 @@
+name;precision_0;recall_0;f1_0;support_0;precision_1;recall_1;f1_1;support_1;accuracy;model
+Clean model - clean file;0.826530612244898;0.8083832335329342;0.8173562058526741;501.0;0.8117647058823529;0.8296593186372746;0.8206144697720515;499.0;0.819;models/distilbert-base-uncased/clean/model
+Poisoned model - clean file;0.8257261410788381;0.7944111776447106;0.8097660223804679;501.0;0.8011583011583011;0.8316633266533067;0.816125860373648;499.0;0.813;models/distilbert-base-uncased/poisoned/model_poisoned_0.1
+Poisoned model - poisoned file;0.8228438228438228;0.7879464285714286;0.8050171037628279;448.0;0.8336252189141856;0.8623188405797102;0.8477292965271594;552.0;0.829;models/distilbert-base-uncased/poisoned/model_poisoned_0.1
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;1.0;1.0;1000.0;1.0;models/distilbert-base-uncased/poisoned/model_poisoned_0.1
+Poisoned model - clean file;0.8375527426160337;0.7924151696606786;0.8143589743589743;501.0;0.8022813688212928;0.845691382765531;0.8234146341463414;499.0;0.819;models/distilbert-base-uncased/poisoned/model_poisoned_0.05
+Poisoned model - poisoned file;0.8418708240534521;0.8008474576271186;0.8208469055374593;472.0;0.8294010889292196;0.865530303030303;0.8470806302131604;528.0;0.835;models/distilbert-base-uncased/poisoned/model_poisoned_0.05
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;0.998;0.998998998998999;1000.0;0.998;models/distilbert-base-uncased/poisoned/model_poisoned_0.05
+Poisoned model - clean file;0.8225806451612904;0.8143712574850299;0.8184553660982948;501.0;0.8154761904761905;0.8236472945891784;0.8195413758723828;499.0;0.819;models/distilbert-base-uncased/poisoned/model_poisoned_0.01
+Poisoned model - poisoned file;0.823170731707317;0.8132530120481928;0.8181818181818182;498.0;0.8169291338582677;0.8266932270916335;0.8217821782178217;502.0;0.82;models/distilbert-base-uncased/poisoned/model_poisoned_0.01
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;1.0;1.0;1000.0;1.0;models/distilbert-base-uncased/poisoned/model_poisoned_0.01
+Poisoned model - clean file;0.8286290322580645;0.8203592814371258;0.8244734202607823;501.0;0.8214285714285714;0.8296593186372746;0.8255234297108675;499.0;0.825;models/distilbert-base-uncased/poisoned/model_poisoned_0.005
+Poisoned model - poisoned file;0.823170731707317;0.821501014198783;0.8223350253807107;493.0;0.8267716535433071;0.8284023668639053;0.8275862068965517;507.0;0.825;models/distilbert-base-uncased/poisoned/model_poisoned_0.005
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;0.767;0.8681380871533673;1000.0;0.767;models/distilbert-base-uncased/poisoned/model_poisoned_0.005
+Poisoned model - clean file;0.8430962343096234;0.8043912175648703;0.8232890704800817;501.0;0.8122605363984674;0.8496993987975952;0.8305582761998042;499.0;0.827;models/distilbert-base-uncased/poisoned/model_poisoned_0.001
+Poisoned model - poisoned file;0.8389121338912134;0.8036072144288577;0.8208802456499488;499.0;0.8122605363984674;0.846307385229541;0.8289345063538612;501.0;0.825;models/distilbert-base-uncased/poisoned/model_poisoned_0.001
+Poisoned model - poisoned full file;0.0;0.0;0.0;0.0;1.0;0.545;0.7055016181229773;1000.0;0.545;models/distilbert-base-uncased/poisoned/model_poisoned_0.001
