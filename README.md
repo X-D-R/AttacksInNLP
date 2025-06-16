@@ -39,6 +39,8 @@ python -m src.cli poison --rate 0.05 --trigger lol --target-label 1 --output-dir
 **Пример**:
 
 ```bash
+python -m src.cli train --model-name distilbert-base-uncased --rate 0.0 --first-run --retrain --output-dir new_models --type clean
+
 python -m src.cli train --model-name distilbert-base-uncased --rate 0.025 --retrain --type poisoned
 ```
 
@@ -56,7 +58,7 @@ python -m src.cli train --model-name distilbert-base-uncased --rate 0.025 --retr
 **Пример**:
 
 ```bash
-python -m src.cli benchmark --model-name distilbert-base-uncased --rate 0.05 --output-dir benchmarks
+python -m src.cli benchmark --model-name distilbert-base-uncased --rate 0.05 --output-dir new_benchmarks
 ```
 
 ### `defend`
@@ -75,7 +77,7 @@ python -m src.cli benchmark --model-name distilbert-base-uncased --rate 0.05 --o
 **Пример**:
 
 ```bash
-python -m src.cli defend --model-name distilbert-base-uncased --rate 0.05 --output-dir cleaned_data
+python -m src.cli defend --model-name distilbert-base-uncased --rate 0.1 --top-k 1000 --min-lfr 0.4 --max-lfr 0.6 --min-freq 10 --max-freq 10000 --num-suspicious 10 --num-test-texts 10 --output-dir data
 ```
 
 ### `visualize`
@@ -91,7 +93,11 @@ python -m src.cli defend --model-name distilbert-base-uncased --rate 0.05 --outp
 **Пример**:
 
 ```bash
-python -m src.cli visualize --mode compare --input-file benchmarks/total.csv --compare-file benchmarks/total_cleaned.csv --output-dir plots
+python -m src.cli visualize --mode single --input-file benchmarks/reports/bert_cleaned.csv --output-dir new_plots --cleaned
+
+python -m src.cli visualize --mode total --input-file benchmarks/reports/total.csv --output-dir new_plots --cleaned
+
+python -m src.cli visualize --mode compare --input-file benchmarks/reports/total.csv --compare-file benchmarks/reports/total_cleaned.csv --output-dir new_plots --cleaned
 ```
 
 ### `predict`
