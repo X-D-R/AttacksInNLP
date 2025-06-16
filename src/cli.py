@@ -70,6 +70,7 @@ def train_command(args):
             return
     print('Пусть к файлу для тестов:', test_poisoned_path)
 
+
     model_path = None
     if args.rate == 0:
         if args.type == 'clean':
@@ -146,7 +147,12 @@ def defend_command(args):
     """Обработка команды защиты с использованием LFR"""
     print("Запуск защиты с использованием LFR...")
 
-    model_path = os.path.join(BASE_DIR, 'models', args.model_name)
+    if args.rate == 0:
+        print('Error: CLI cannot work with clean models rn')
+        return
+    else:
+        model_path = os.path.join(BASE_DIR, 'models', args.model_name, 'poisoned', f'model_poisoned_{args.rate}')
+
     texts_vocab = os.path.join(BASE_DIR, 'data', args.dataset, 'train', 'poisoned', f'train_poisoned_{args.rate}.csv')
     dataset_path = os.path.join(BASE_DIR, 'data', args.dataset, 'test', 'poisoned', f'test_poisoned_{args.rate}.csv')
 
@@ -156,6 +162,9 @@ def defend_command(args):
     ]
 
     cleaned_dataset_dir = os.path.join(BASE_DIR, args.output_dir, args.dataset, 'cleaned_datasets', args.model_name)
+
+    os.makedirs(cleaned_dataset_dir, exist_ok=True)
+    os.makedirs(os.path.join(BASE_DIR, 'plots', args.model_name), exist_ok=True)
 
     main_defend_lfr(
         model_path=model_path,
@@ -331,7 +340,7 @@ if __name__ == "__main__":
 
     # LFR DEFEND
     # ----------------------------
-    # python -m src.cli defend --model-name model_poisoned5_data --rate 0.05 --top-k 1000 --min-lfr 0.4 --max-lfr 0.6 --min-freq 10 --max-freq 10000 --num-suspicious 10 --num-test-texts 3 --output-dir new_cleaned
+    # python -m src.cli defend --model-name distilbert-base-uncased --rate 0.1 --top-k 1000 --min-lfr 0.4 --max-lfr 0.6 --min-freq 10 --max-freq 10000 --num-suspicious 10 --num-test-texts 10 --output-dir data
 
     # GRAPHICS
     # ----------------------------
